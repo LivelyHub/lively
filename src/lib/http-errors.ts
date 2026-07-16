@@ -30,6 +30,14 @@ export function parseBody<T>(schema: ZodType<T>, body: unknown): T {
   return result.data;
 }
 
+export function parseQuery<T>(schema: ZodType<T>, query: unknown): T {
+  const result = schema.safeParse(query);
+  if (!result.success) {
+    throw new HttpError(400, "VALIDATION", "Invalid query parameters", fieldsFromZodError(result.error));
+  }
+  return result.data;
+}
+
 function pgErrorCode(err: unknown): string | undefined {
   if (typeof err !== "object" || err === null) return undefined;
   const record = err as { code?: string; cause?: unknown };

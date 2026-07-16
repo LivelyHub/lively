@@ -124,30 +124,32 @@ All 10 tables from CORE.md §1 (freeze after Day 1): `elders`, `family_members`,
 ## Epic B4 — Conversation log `P0`
 
 ### B4.1 `POST /bot/inbound` — log elder message + return companion context `P0`
-- [ ] Bot-key auth; body `{elder_phone_e164, body}` — backend resolves phone → elder
-- [ ] Inserts `conversations` row `direction:'in'`
-- [ ] Response carries the CompanionConfig contract (CORE §3): `{elder_id, companion:{key, honorific, healthFlags}, paused, recent_messages: last 10}`
-- [ ] Unknown phone → 404
-- [ ] Paused elder: message still logged, response `paused: true`
+- [x] Bot-key auth; body `{elder_phone_e164, body}` — backend resolves phone → elder
+- [x] Inserts `conversations` row `direction:'in'`
+- [x] Response carries the CompanionConfig contract (CORE §3): `{elder_id, companion:{key, honorific, healthFlags}, paused, recent_messages: last 10}`. Note: this response follows CORE.md's literal snake_case field names (`elder_id`, `recent_messages`, `created_at`) since it's a genuine cross-repo contract `lively-bot` codes against directly — unlike the rest of this API (auth, elders), which uses camelCase since CORE.md doesn't specify those field names explicitly.
+- [x] Unknown phone → 404
+- [x] Paused elder: message still logged, response `paused: true`
 
-**Test:** post with seeded phone → row + context matches CORE §3; unknown phone 404.
+**Test:** all verified against Neon with a throwaway elder — known phone → row + context matches CORE §3 shape exactly; unknown phone 404; no/wrong bot key 401; paused elder still logs and returns `paused:true`.
 **Depends on:** B2.2, B1.2.
 
 ### B4.2 `POST /bot/outbound` — log companion message `P0`
-- [ ] Bot-key auth; body `{elder_id, body}` → `direction:'out'` row (CORE §4: logs after the fact, no timing enforcement)
-- [ ] Supports 1–3 message splits: three rapid calls → three ordered rows (`created_at` monotonic)
+- [x] Bot-key auth; body `{elder_id, body}` → `direction:'out'` row (CORE §4: logs after the fact, no timing enforcement)
+- [x] Supports 1–3 message splits: three rapid calls → three ordered rows (`created_at` monotonic)
 
-**Test:** three rapid posts → three ordered rows; appears in B4.3.
+**Test:** three rapid posts → three ordered rows, timestamps strictly increasing (verified against Neon); unknown elder_id → 404.
 **Depends on:** B4.1.
 
 ### B4.3 `GET /elders/:id/conversation` — Chat Monitor read `P0`
-- [ ] Family JWT + ownership
-- [ ] `?limit=30&before=<cursor>` — newest first, `before` pages older
-- [ ] Response `{messages:[{id, direction, body, created_at}], next_cursor}`
-- [ ] Empty conversation → `{messages:[], next_cursor:null}`
-- [ ] `?after=<cursor>` returns only newer messages (poll-friendly)
+- [x] Family JWT + ownership
+- [x] `?limit=30&before=<cursor>` — newest first, `before` pages older
+- [x] Response `{messages:[{id, direction, body, created_at}], next_cursor}`
+- [x] Empty conversation → `{messages:[], next_cursor:null}`
+- [x] `?after=<cursor>` returns only newer messages (poll-friendly), oldest-first so a client can append in order
 
-**Test:** page with `before`; `after` returns only new rows after a bot inbound; empty for a fresh elder.
+**Test:** paged with `before` (2-message pages, no overlap/gap, verified against Neon); `after` returns only new rows following a bot inbound; empty `[]` for a fresh elder; cross-family → 404; unknown cursor → 400; both `before`+`after` → 400.
+
+**Bug caught and fixed during testing:** the cursor comparison originally fetched a message's `created_at` into JS as a `Date`, then reused that `Date` as the comparison bound. JS `Date` only has millisecond precision; Postgres `timestamptz` has microsecond precision. So a message's own truncated timestamp could compare as "less than" its own untruncated stored value, and `after=<a message's own id>` would incorrectly include that message in its own results (proved with `after=oldest_id` returning all 5 rows instead of 4). Fixed by moving the comparison into a SQL subquery (`created_at > (SELECT created_at FROM conversations WHERE id = ...)`) so it never round-trips through a JS `Date`. Re-verified: `after=oldest_id` now correctly excludes itself, and `after=<latest known id>` with nothing new returns `{messages:[],next_cursor:null}`.
 **Depends on:** B4.1, B4.2.
 
 ---

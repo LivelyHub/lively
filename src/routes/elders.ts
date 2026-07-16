@@ -4,11 +4,11 @@ import type { FastifyInstance } from "fastify";
 import { db } from "../db/index.js";
 import { elders, companions, conversations, alerts } from "../db/schema.js";
 import { requireFamily } from "../lib/auth-guards.js";
-import { HttpError, parseBody } from "../lib/http-errors.js";
+import { parseBody } from "../lib/http-errors.js";
+import { COMPANION_KEYS, findCompanionByKey, findCompanionById } from "../lib/companions.js";
+import { getOwnedElder } from "../lib/owned-elder.js";
 
 const PHONE_E164_REGEX = /^\+[1-9]\d{6,14}$/;
-const COMPANION_KEYS = ["mbak_asih", "mas_budi"] as const;
-const uuidSchema = z.string().uuid();
 
 const healthFlagsSchema = z.array(z.string().trim().min(1).max(60)).max(20);
 
@@ -42,37 +42,6 @@ function serializeElder(row: ElderRow, companion: CompanionRow) {
     createdAt: row.createdAt,
     companion: { id: companion.id, key: companion.key, displayName: companion.displayName },
   };
-}
-
-async function findCompanionByKey(key: (typeof COMPANION_KEYS)[number]): Promise<CompanionRow> {
-  const [row] = await db.select().from(companions).where(eq(companions.key, key));
-  if (!row) {
-    // Should only happen if the seed script (B1.2) hasn't run — a config
-    // problem, not a client error, so this is a 500 not a 400/404.
-    throw new HttpError(500, "INTERNAL_ERROR", `Companion "${key}" not seeded — run npm run seed`);
-  }
-  return row;
-}
-
-async function findCompanionById(id: string): Promise<CompanionRow> {
-  const [row] = await db.select().from(companions).where(eq(companions.id, id));
-  if (!row) {
-    throw new HttpError(500, "INTERNAL_ERROR", "Companion record missing for elder");
-  }
-  return row;
-}
-
-async function getOwnedElder(familyMemberId: string, elderId: string): Promise<ElderRow> {
-  // Malformed ids and ids that belong to another family both read as
-  // "not found" — never leak that a resource exists but isn't yours.
-  if (!uuidSchema.safeParse(elderId).success) {
-    throw new HttpError(404, "NOT_FOUND", "Elder not found");
-  }
-  const [row] = await db.select().from(elders).where(eq(elders.id, elderId));
-  if (!row || row.familyMemberId !== familyMemberId) {
-    throw new HttpError(404, "NOT_FOUND", "Elder not found");
-  }
-  return row;
 }
 
 export async function elderRoutes(app: FastifyInstance) {

@@ -5,6 +5,7 @@ import { sql } from "drizzle-orm";
 import { db } from "./db/index.js";
 import { authRoutes } from "./routes/auth.js";
 import { elderRoutes } from "./routes/elders.js";
+import { conversationRoutes } from "./routes/conversations.js";
 import type { HttpError } from "./lib/http-errors.js";
 
 const app = Fastify({ logger: true });
@@ -54,6 +55,7 @@ if (missingEnvVars.length > 0) {
 await app.register(fastifyJwt, { secret: process.env.JWT_SECRET! });
 await app.register(authRoutes);
 await app.register(elderRoutes);
+await app.register(conversationRoutes);
 
 app.listen({ port, host: "0.0.0.0" }).catch((err) => {
   app.log.error(err);

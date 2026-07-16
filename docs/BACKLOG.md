@@ -277,14 +277,17 @@ SPEC §6 leaves *delivery* to mobile, but something must call Expo Push when an 
 ## Epic B9 — Demo hardening `P1`
 
 ### B9.1 Validation everywhere `P1`
-- [ ] Every route body/params validated (zod or TypeBox); no unvalidated input reaches a query
-- [ ] Validation errors → 400 `{error:{code:'VALIDATION', message, fields:{...}}}`
+- [x] Every route body/params validated (zod); no unvalidated input reaches a query — audited systematically (grepped every `request.params`/`request.body`/`request.query` access across all 10 route files, confirmed each one goes through `parseBody`/`parseQuery` or an ownership helper that validates UUID format before querying — not just assumed from having written it that way)
+- [x] Validation errors → 400 `{error:{code:'VALIDATION', message, fields:{...}}}`
+
+**Bug caught and fixed during the audit:** Fastify's own body-parsing errors (malformed JSON, empty body with a JSON content-type, missing/wrong content-type) bypass the zod layer entirely and were leaking Fastify's internal `FST_ERR_CTP_*` codes at various status codes (400, 415) instead of the standardized `VALIDATION`/400 shape this story requires. Verified with curl against all four cases (malformed JSON, empty body, no content-type, no body at all), then normalized them in the global error handler (`server.ts`) — one place, not a per-route fix — so any `FST_ERR_CTP_*` code becomes a clean `{error:{code:'VALIDATION',message:'Invalid request body'}}` at 400. Re-verified all four cases plus a regression check that normal zod validation errors, 401s, and 404s were untouched by the change.
 
 ### B9.2 CORS + logging `P1`
-- [ ] CORS open to Expo dev origins (`*` acceptable — SPEC §6 waives abuse protection)
-- [ ] Request logging (pino) with route + status + latency
+- [x] CORS open to Expo dev origins (`*` acceptable — SPEC §6 waives abuse protection) — `@fastify/cors` with `origin: true` (reflects the request's Origin rather than a literal `*`, which also works if credentialed requests are ever needed later). Verified: preflight `OPTIONS` returns 204 with `access-control-allow-origin` matching the request's Origin; a normal `GET` carries the same header.
+- [x] Request logging (pino) with route + status + latency — already present since B0 (`Fastify({logger:true})`); verified the actual log lines carry `req.url` (route), `res.statusCode`, and `responseTime`, correlated by `reqId`. No code change needed, just confirmed rather than assumed.
 
 ### B9.3 Deployed and reachable `P1`
+🔴 **Requires your action, not something I can do unattended.** Deploying to Railway/Render/Fly means creating or using a cloud account, which needs your credentials/access — I can walk through the steps with you (or use gstack's `/setup-deploy` skill once a platform is chosen), but I'm not going to sign up for a hosting account or push infrastructure changes to a shared external system on your behalf without you present for it.
 - [ ] Deployed (Railway / Render / Fly) with env vars set
 - [ ] `GET /health` green from a phone on cellular (the demo-day network escape hatch)
 - [ ] `BACKEND_API_URL` shared with mobile + bot teams

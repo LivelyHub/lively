@@ -8,4 +8,6 @@ export const env = {
   openrouterApiKey: process.env.OPENROUTER_API_KEY,
   openrouterModel: process.env.OPENROUTER_MODEL ?? "meta-llama/llama-3.1-8b-instruct:free",
   openrouterBaseUrl: process.env.OPENROUTER_BASE_URL ?? "https://openrouter.ai/api/v1",
+  telegramBotToken: process.env.TELEGRAM_BOT_TOKEN,
+  whatsappEnabled: process.env.WHATSAPP_ENABLED === "true",
 };

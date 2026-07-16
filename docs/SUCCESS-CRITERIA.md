@@ -1,0 +1,35 @@
+# lively-backend — Success Criteria
+
+> What "done" means for the backend at three levels: per epic (§1), for the integration the demo needs (§2), and for submission (§3). Story-level acceptance boxes live in [BACKLOG.md](BACKLOG.md). "Verified" = the [TESTING.md](TESTING.md) procedure was actually run.
+
+## 1. Definition of Done per epic
+
+| Epic | Done when |
+|---|---|
+| **B0 Scaffold** | Server boots from `.env`; `/health` reports DB status; all errors use the standard shape; Neon reachable from venue Wi-Fi **or** Docker fallback rehearsed; migrations run from zero. |
+| **B1 Schema & seed** | All 10 CORE.md tables migrate from empty; enum/FK constraints reject bad data; `npm run seed` is idempotent and produces Eyang Uti with the 8→12 chair-test arc, conversation history, streak, and one medication. |
+| **B2 Auth** | Register/login issue working JWTs; the full auth matrix (every route × every credential type) passes; cross-family access returns 404 everywhere. |
+| **B3 Elders** | Create, read (list + single), and patch work end-to-end; pause flag round-trips into `POST /bot/inbound` responses. |
+| **B4 Conversation** | Bot logs in/out messages; history pages with `before`, deltas poll with `after`; a curl-posted inbound appears in a `GET /conversation` within the poll window. |
+| **B5 Assessments** | Chair tests and exercise logs insert (exercise idempotent per day); `GET /progress` returns chart-ready data; empty elder returns empty shapes, not errors. |
+| **B6 Medications** | Family CRUD + per-slot today status works; dose-logging idempotent per slot; 2 consecutive missed slots raise exactly one `medication_missed`. |
+| **B7 Alerts** | All 6 types insert with duplicate suppression; a real Expo push arrives on a device for `emergency`; list + resolve work; fan-out queries the relationship. |
+| **B8 Titipan** | Send → bot queue → mark delivered round-trips; `delivered_at` set. |
+| **B9 Hardening** | Every route validates input (400s with field detail); deployed URL passes the full smoke script from a phone on cellular. |
+
+## 2. Integration success (what lets the team demo)
+
+The backend qualifies the whole team, per PLAN.md Definition of Done items 3–4. It is integration-ready when:
+
+- [ ] `lively-mobile` can register, create an elder, and read a conversation + progress against the deployed URL
+- [ ] `lively-bot` (or the operator curl script in TESTING.md §3) can log inbound/outbound messages, post a chair test, and raise an alert
+- [ ] A `pain_mention` alert posted by the bot path fires an Expo push that lands on the family device — the demo's magic moment (full script in `lively-mobile/docs/SUCCESS-CRITERIA.md` §2)
+- [ ] The deployed URL is green from cellular, and `BACKEND_API_URL` is shared with both other teams
+
+## 3. Submission gate (SPEC §8)
+
+- [ ] **Working demo** — deployed backend reachable by mobile + bot at demo time
+- [ ] **Public repo** — README, LICENSE, `.gitignore`, `.env.example` only. Before every push, grep for leaked secrets: no `DATABASE_URL=postgres://…`, no real `BOT_SERVICE_KEY`/`JWT_SECRET` values
+- [ ] **CORE.md sync** — the [BACKLOG.md](BACKLOG.md) amendments applied to all four CORE.md copies; the committed schema matches CORE.md §1 exactly
+- [ ] **Pitch deck** — 🔴 owner TBD (SPEC §8); backend owner confirms who hosts it by Day 2 evening
+- [ ] Submitted **with margin** before 2026-07-18 (exact time 🔴 TBD — record it here once known: ______)

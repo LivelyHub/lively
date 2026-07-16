@@ -17,6 +17,7 @@ type TextFieldProps = TextInputProps & {
   error?: string;
   disabled?: boolean;
   containerStyle?: StyleProp<ViewStyle>;
+  rightElement?: React.ReactNode;
 };
 
 export function TextField({
@@ -25,6 +26,7 @@ export function TextField({
   error,
   disabled = false,
   containerStyle,
+  rightElement,
   onFocus,
   onBlur,
   ...inputProps
@@ -40,25 +42,29 @@ export function TextField({
   return (
     <View style={containerStyle}>
       {label ? <Text style={styles.label}>{label}</Text> : null}
-      <TextInput
-        editable={!disabled}
-        placeholderTextColor={colors.textMuted}
-        style={[
-          styles.input,
-          { borderColor },
-          disabled && styles.inputDisabled,
-        ]}
-        onFocus={(e) => {
-          setFocused(true);
-          onFocus?.(e);
-        }}
-        onBlur={(e) => {
-          setFocused(false);
-          onBlur?.(e);
-        }}
-        accessibilityState={{ disabled }}
-        {...inputProps}
-      />
+      <View style={styles.inputRow}>
+        <TextInput
+          editable={!disabled}
+          placeholderTextColor={colors.textMuted}
+          style={[
+            styles.input,
+            { borderColor },
+            Boolean(rightElement) && styles.inputWithRightElement,
+            disabled && styles.inputDisabled,
+          ]}
+          onFocus={(e) => {
+            setFocused(true);
+            onFocus?.(e);
+          }}
+          onBlur={(e) => {
+            setFocused(false);
+            onBlur?.(e);
+          }}
+          accessibilityState={{ disabled }}
+          {...inputProps}
+        />
+        {rightElement ? <View style={styles.rightElement}>{rightElement}</View> : null}
+      </View>
       {error ? (
         <Text style={[styles.helper, styles.errorText]}>{error}</Text>
       ) : helper ? (
@@ -74,6 +80,9 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginBottom: spacing.sm,
   },
+  inputRow: {
+    justifyContent: 'center',
+  },
   input: {
     ...typography.body,
     minHeight: 48,
@@ -84,9 +93,20 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     color: colors.text,
   },
+  inputWithRightElement: {
+    paddingRight: spacing.xxl,
+  },
   inputDisabled: {
     backgroundColor: colors.hairline,
     color: colors.textMuted,
+  },
+  rightElement: {
+    position: 'absolute',
+    right: spacing.sm,
+    top: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   helper: {
     ...typography.caption,

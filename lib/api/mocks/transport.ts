@@ -1,4 +1,5 @@
 import type { RequestOptions } from '../client';
+import { ApiError } from '../errors';
 import type {
   CreateElderRequest,
   CreateMedicationRequest,
@@ -43,6 +44,15 @@ export async function mockRequest<T>(path: string, options: RequestOptions): Pro
   }
   if (method === 'POST' && match('/auth/register', path)) {
     const req = body as RegisterRequest;
+    // M1.1: demo the 409 duplicate-email path against the fixture family member,
+    // since the real backend contract for this isn't pinned down yet either.
+    if (req.email.trim().toLowerCase() === mockStore.familyMember.email.trim().toLowerCase()) {
+      throw new ApiError('Email ini sudah terdaftar', {
+        status: 409,
+        code: 'conflict',
+        fields: { email: 'Email ini sudah terdaftar' },
+      });
+    }
     return { token: 'mock-token', family_member: mockStore.register(req.name, req.email) } as unknown as T;
   }
   if (method === 'GET' && match('/elders', path)) {

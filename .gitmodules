@@ -1,0 +1,12 @@
+[submodule "backend"]
+	path = backend
+	url = https://github.com/LivelyHub/lively-backend.git
+[submodule "bot"]
+	path = bot
+	url = https://github.com/LivelyHub/lively-bot.git
+[submodule "mobile"]
+	path = mobile
+	url = https://github.com/LivelyHub/lively-mobile.git
+[submodule "landing"]
+	path = landing
+	url = https://github.com/LivelyHub/lively-landing.git

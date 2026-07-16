@@ -301,14 +301,16 @@ SPEC §6 leaves *delivery* to mobile, but something must call Expo Push when an 
 Post-kickoff addition (mentor/judge feedback: gamification makes checking on Eyang feel like a shared win, not a compliance chore). The progress bar/streak/graphs in B5.3 already deliver most of that value cheaply — this epic is the one genuinely new endpoint, so it's the first thing to drop if Day 3 runs short (PLAN.md cut-order).
 
 ### B10.1 `GET /elders/:id/report?period=week|month` `P1`
-- [ ] Family JWT + ownership; `period` defaults to `week`
-- [ ] Response matches CORE.md §7 shape: `period`, `range`, `headline`, `consistency_pct`, `exercise`, `medication_adherence_pct`, `chair_test_trend`, `highlights[]`, `areas_needing_support[]`
-- [ ] `consistency_pct` = % of days in range with ≥1 engagement row (same definition as B5.3's streak, windowed)
-- [ ] `chair_test_trend` ∈ `improving`/`stable`/`declining`, comparing first vs. last chair-test result in range
-- [ ] Copy tone: `headline` and `highlights` always lead positive; `areas_needing_support` is encouragement-framed, never guilt ("could use a nudge on evening doses", not "missed medication")
-- [ ] Zero-data elder → `consistency_pct: 0`, empty arrays, still 200 with a gentle headline ("Eyang Uti is just getting started")
+- [x] Family JWT + ownership; `period` defaults to `week`
+- [x] Response matches CORE.md §7 shape: `period`, `range`, `headline`, `consistency_pct`, `exercise`, `medication_adherence_pct`, `chair_test_trend`, `highlights[]`, `areas_needing_support[]`
+- [x] `consistency_pct` = % of days in range with ≥1 engagement row (same definition as B5.3's streak, windowed) — `month` is a rolling 30-day window, not a calendar month, matching the same convention already used by B5.3's `exercise_history`/`medication_adherence_trend`, not a second definition of "period"
+- [x] `chair_test_trend` ∈ `improving`/`stable`/`declining`, comparing first vs. last chair-test result in range. Fewer than 2 chair tests in range → `stable` (can't claim a direction from 0-1 points; also the most neutral/positive-safe default)
+- [x] Copy tone: `headline` and `highlights` always lead positive (highlights are opt-in per category — only added when there's genuinely good news, never spun from a bad number); `areas_needing_support` is encouragement-framed, never guilt. Kept intentionally generic ("could use a nudge on medication doses," not day-pinpointed) — `medication_logs` has no slot column to know which specific day/dose, same limitation as B5.3/B6.
+- [x] Zero-data elder → `consistency_pct: 0`, empty arrays, still 200 with a gentle headline (`"{honorific} is just getting started"`) — `medication_adherence_pct` is `null` in this case (and whenever an elder has no active medications), not a fabricated number
 
-**Test:** seeded week → headline + highlights match seed data; fresh elder → zero-state copy, not an error; month vs week windows produce different `range`.
+⚠️ **Worth a second look:** `highlights`/`areas_needing_support`/`headline` copy is in **English**, matching CORE.md §7's literal JSON example verbatim — even though the rest of the product (companion chat copy, `UI-UX-GUIDELINES.md` §4) is Indonesian-first. I followed the documented contract exactly rather than deviate on my own judgment, but this is a real product decision someone should confirm before the demo, not something to discover live.
+
+**Test:** verified against the real seeded Eyang Uti data on Neon, math checked by hand — week: `consistency_pct = round(5/7×100) = 71` (only 1 of 4 seeded chair tests falls in a 7-day window, correctly triggering the `stable` fallback and its highlight), `medication_adherence_pct = round(3/7×100) = 43`; month: all 4 chair tests in range → `improving`, `8→12`, different `consistency_pct` (27) and `range`. Fresh elder → zero-state copy, `medication_adherence_pct: null`, empty arrays, still 200. Invalid `period` → 400. Cross-family → 404.
 **Depends on:** B5.3.
 
 ---

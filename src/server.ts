@@ -14,6 +14,7 @@ import { medicationLogRoutes } from "./routes/medication-logs.js";
 import { alertRoutes } from "./routes/alerts.js";
 import { familyMemberRoutes } from "./routes/family-members.js";
 import { titipanRoutes } from "./routes/titipan.js";
+import { reportRoutes } from "./routes/report.js";
 import type { HttpError } from "./lib/http-errors.js";
 
 const app = Fastify({ logger: true });
@@ -89,6 +90,7 @@ await app.register(medicationLogRoutes);
 await app.register(alertRoutes);
 await app.register(familyMemberRoutes);
 await app.register(titipanRoutes);
+await app.register(reportRoutes);
 
 app.listen({ port, host: "0.0.0.0" }).catch((err) => {
   app.log.error(err);

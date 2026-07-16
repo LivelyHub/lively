@@ -44,10 +44,10 @@ No ad-hoc hex or font sizes in screens — everything draws from tokens.
 
 ### M1.1 Login + register `P0`
 **UI states:** field-level input errors · submit loading (button spinner + disabled) · server error (inline banner, human copy) · success → navigate.
-- [ ] Email + password with client validation before submit
-- [ ] Register: name + email + password; duplicate email (backend 409) → "Email ini sudah terdaftar"
-- [ ] Token in `expo-secure-store`; session restored on cold start (splash → Home if valid)
-- [ ] Logout clears token + query cache
+- [x] Email + password with client validation before submit
+- [x] Register: name + email + password; duplicate email (backend 409) → "Email ini sudah terdaftar"
+- [x] Token in `expo-secure-store`; session restored on cold start (splash → Home if valid)
+- [x] Logout clears token + query cache
 
 **Test:** register → kill app → reopen → still logged in; wrong password → friendly error; logout → back to login.
 **Depends on:** M0.3, backend B2.1.

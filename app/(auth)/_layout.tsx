@@ -1,10 +1,16 @@
 import { Stack } from 'expo-router';
+import { View } from 'react-native';
+
+import { OfflineBanner } from '@/components/OfflineBanner';
 
 export default function AuthLayout() {
   return (
-    <Stack>
-      <Stack.Screen name="login" options={{ title: 'Masuk' }} />
-      <Stack.Screen name="register" options={{ title: 'Daftar' }} />
-    </Stack>
+    <View style={{ flex: 1 }}>
+      <OfflineBanner />
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="login" />
+        <Stack.Screen name="register" />
+      </Stack>
+    </View>
   );
 }

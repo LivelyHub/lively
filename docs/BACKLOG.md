@@ -192,24 +192,28 @@ All 10 tables from CORE.md §1 (freeze after Day 1): `elders`, `family_members`,
 
 ### B6.1 `POST /medications` + `PATCH /medications/:id` + `GET /elders/:id/medications` `P1`
 ⚠️ **CORE.md gap** (Amendments): SPEC §4 says "adds/**edits**"; mobile needs the list.
-- [ ] `POST` (family JWT) `{elder_id, name, dosage, schedule_times:["07:00"], active?}` — times `HH:MM`, ≥1
-- [ ] `PATCH /medications/:id` partial incl. `active:false` (soft-disable, never delete — logs reference it)
-- [ ] `GET /elders/:id/medications` — active meds with today's per-slot status (`taken`/`unconfirmed`/`upcoming`)
-- [ ] Ownership checks throughout
+- [x] `POST` (family JWT) `{elder_id, name, dosage, schedule_times:["07:00"], active?}` — times `HH:MM`, ≥1
+- [x] `PATCH /medications/:id` partial incl. `active:false` (soft-disable, never delete — logs reference it)
+- [x] `GET /elders/:id/medications` — active meds with today's per-slot status (`taken`/`unconfirmed`/`upcoming`)
+- [x] Ownership checks throughout
 
-**Test:** create → list shows with slots; deactivate → drops from reminders, history stays; bad time 400.
+**Test:** create → list shows with slots (verified: 07:00 "unconfirmed", 19:00 "upcoming" against current UTC time); deactivate → drops from `GET .../medications` and from `progress`'s `last7d_scheduled`, but the medication_log history stays and still counts in `last7d_taken` (verified); bad time (`"25:99"`) → 400 with `fields`; cross-family PATCH → 404. All verified against Neon.
 **Depends on:** B3.3.
 
 ### B6.2 `POST /medication-logs` `P1`
-- [ ] Bot-key auth; body `{medication_id, elder_id, method, taken_at?}`
-- [ ] Validates medication belongs to elder; mismatch → 400
-- [ ] Idempotent per medication + slot
-- [ ] Feeds B6.1 status + B5.3 adherence
+- [x] Bot-key auth; body `{medication_id, elder_id, method, taken_at?}`
+- [x] Validates medication belongs to elder; mismatch → 400
+- [x] Idempotent per medication (see limitation below); double-post same day → 200 existing row, same id
+- [x] Feeds B6.1 status + B5.3 adherence
 
-**Test:** log → list flips to `taken`; double-post → one row.
+**Known limitation, deliberate not accidental:** "idempotent per medication + slot" as originally speced needs a `scheduled_time`/slot column on `medication_logs` to know *which* dose a log confirms — that column doesn't exist, and CORE.md's schema froze at the end of Day 1. Adding it now would mean a contract change `lively-bot` would need to adopt mid-hackathon, which is exactly the kind of late schema churn SPEC.md's risk section warns against. Shipped as idempotent **per medication per UTC calendar day** instead: exactly correct for the single-dose-per-day case (the seed data, and the likely demo path), but a second same-day dose on a multi-dose medication (e.g. Amlodipine at both 07:00 and 19:00) will under-confirm — the second post returns the first log's row rather than creating a new one. Same root cause as B5.3/B6.1's `unconfirmed_today`/slot-status heuristics.
+
+**Test:** log → list flips 07:00 to `taken` (verified); double-post same day → same id, 200 not 201 (verified); medication/elder mismatch → 400 (verified); unknown medication → 404 (verified). All against Neon.
 **Depends on:** B6.1.
 
 ### B6.3 Missed-dose detection → `medication_missed` alert `P1`
+🟡 **Genuinely blocked, not skipped:** this story's own dependency line names B7.1, which doesn't exist yet — building the alert-raising path here would mean either duplicating B7.1's fan-out/dedup logic or half-building it. B6.1 and B6.2 are done; pick this up right after B7.1 lands.
+
 CORE §5: no confirmation within grace (default 2h) just shows unconfirmed; **2 consecutive misses** raise `medication_missed`. Counting misses across days is backend state so the bot stays stateless.
 - [ ] A slot with no log 2h past its time counts as missed (lazily on read or a light interval job — document which)
 - [ ] 2 consecutive missed slots → one `medication_missed` via the B7.1 path (fires once, not per-read)

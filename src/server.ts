@@ -8,6 +8,8 @@ import { elderRoutes } from "./routes/elders.js";
 import { conversationRoutes } from "./routes/conversations.js";
 import { assessmentRoutes } from "./routes/assessments.js";
 import { progressRoutes } from "./routes/progress.js";
+import { medicationRoutes } from "./routes/medications.js";
+import { medicationLogRoutes } from "./routes/medication-logs.js";
 import type { HttpError } from "./lib/http-errors.js";
 
 const app = Fastify({ logger: true });
@@ -60,6 +62,8 @@ await app.register(elderRoutes);
 await app.register(conversationRoutes);
 await app.register(assessmentRoutes);
 await app.register(progressRoutes);
+await app.register(medicationRoutes);
+await app.register(medicationLogRoutes);
 
 app.listen({ port, host: "0.0.0.0" }).catch((err) => {
   app.log.error(err);

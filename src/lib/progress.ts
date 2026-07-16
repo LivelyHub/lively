@@ -1,13 +1,7 @@
 import { and, desc, eq } from "drizzle-orm";
 import { db } from "../db/index.js";
 import { chairTestResults, exerciseLogs, medications, medicationLogs } from "../db/schema.js";
-
-// All date-bucketing here uses UTC calendar days, not each elder's local
-// Indonesian timezone — same simplification as B5.2 (no per-elder
-// timezone column exists), applied consistently for streaks and trends.
-function toUtcDateString(d: Date): string {
-  return d.toISOString().slice(0, 10);
-}
+import { toUtcDateString } from "./dates.js";
 
 function lastNDays(n: number): string[] {
   const days: string[] = [];

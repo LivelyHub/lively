@@ -5,6 +5,7 @@ import { db } from "../db/index.js";
 import { elders, chairTestResults, exerciseLogs } from "../db/schema.js";
 import { requireBot } from "../lib/auth-guards.js";
 import { HttpError, parseBody } from "../lib/http-errors.js";
+import { utcDayRange } from "../lib/dates.js";
 
 const chairTestSchema = z.object({
   elder_id: z.string().uuid(),
@@ -24,16 +25,6 @@ async function findElder(elderId: string) {
     throw new HttpError(404, "NOT_FOUND", "Elder not found");
   }
   return elder;
-}
-
-// Calendar-day boundary for "one exercise log per elder per day" (B5.2).
-// Uses UTC day, not each elder's local Indonesian timezone (WIB/WITA/WIT)
-// — the schema has no per-elder timezone column and none was requested,
-// so this is a deliberate simplification, not an oversight.
-function utcDayRange(d: Date): { start: Date; end: Date } {
-  const start = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
-  const end = new Date(start.getTime() + 24 * 60 * 60 * 1000);
-  return { start, end };
 }
 
 export async function assessmentRoutes(app: FastifyInstance) {

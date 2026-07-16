@@ -65,8 +65,14 @@ function Nav() {
       <div className="nav__bar">
         <div className="nav__bar-inner">
           <a className="brand" href="#top" aria-label="Lively, back to top">
+            <img
+              className="brand__logo"
+              src="/logo.png"
+              alt=""
+              width={32}
+              height={32}
+            />
             Lively
-            <span className="brand__dot" aria-hidden="true" />
           </a>
           <nav className="nav__links" aria-label="Sections">
             <a className="nav__link" href="#how">
@@ -195,7 +201,7 @@ function App() {
         </section>
 
         {/* Problem — proof left, text right */}
-        <section className="section section--band band--pear" id="problem">
+        <section className="section section--band band--green" id="problem">
           <div>
             <header className="head-hang">
               <h2>Elders don’t install apps.</h2>
@@ -299,7 +305,7 @@ function App() {
         </section>
 
         {/* Companions — F6 2-up color-shift cards */}
-        <section className="section section--band band--cyan" id="companions">
+        <section className="section section--band band--lavender" id="companions">
           <div>
             <header className="head-hang">
               <h2>Pick who does the texting.</h2>

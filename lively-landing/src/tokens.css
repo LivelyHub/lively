@@ -1,50 +1,52 @@
-/* Hallmark · tokens · theme: Hum (playful cluster)
- * axes: paper-band=light (L97, pear-cream) · display-style=rounded-sans · accent-hue=multi (pear 95 / cyan 235 / coral 18)
+/* Hallmark · tokens · theme: custom (brand-logo palette on the Hum structure)
+ * axes: paper-band=light (L97.5, mint-cream) · display-style=rounded-sans · accent-hue=multi (leaf-green 150 / teal 185 / lavender 305)
+ * anchor: the Lively logo — green speech bubble, lavender elder, warm neutrals
  */
 
 :root {
   /* paper + ink */
-  --color-paper: oklch(97% 0.012 95);
-  --color-paper-2: oklch(94% 0.016 95);
-  --color-paper-3: oklch(91% 0.02 95);
+  --color-paper: oklch(97.5% 0.008 150);
+  --color-paper-2: oklch(94.5% 0.012 150);
+  --color-paper-3: oklch(91.5% 0.016 150);
   --color-ink: oklch(20% 0.012 250);
   --color-ink-body: oklch(20% 0.012 250 / 0.88);
   --color-ink-soft: oklch(20% 0.012 250 / 0.68);
-  --color-paper-veil: oklch(97% 0.012 95 / 0.88);
+  --color-paper-veil: oklch(97.5% 0.008 150 / 0.88);
 
-  /* multi-accent — pear = primary action · cyan = link / community · coral = the one pop moment */
-  --color-accent: oklch(86% 0.18 95);
-  --color-accent-deep: oklch(70% 0.15 95);
-  --color-accent-2: oklch(66% 0.18 235);
-  --color-accent-2-deep: oklch(45% 0.14 235);
-  --color-accent-3: oklch(68% 0.24 18);
-  --color-accent-3-deep: oklch(48% 0.19 18);
-  --color-mint: oklch(80% 0.16 150);
-  --color-mint-deep: oklch(60% 0.14 150);
-  --color-lavender: oklch(74% 0.16 305);
-  --color-lavender-deep: oklch(58% 0.14 305);
+  /* multi-accent — green = primary action · teal = link / community · lavender = the pop moment */
+  --color-accent: oklch(72% 0.16 150);
+  --color-accent-deep: oklch(54% 0.13 150);
+  --color-accent-2: oklch(64% 0.11 185);
+  --color-accent-2-deep: oklch(43% 0.09 185);
+  --color-accent-3: oklch(74% 0.12 305);
+  --color-accent-3-deep: oklch(50% 0.11 305);
+  --color-mint: oklch(80% 0.13 150);
+  --color-mint-deep: oklch(58% 0.11 150);
+
+  /* safety alert — semantic state colour, deliberately outside the brand palette */
+  --color-alert: oklch(66% 0.19 25);
+  --color-alert-deep: oklch(45% 0.17 25);
 
   /* section band tints — each accent owns its own surface */
-  --tint-pear: oklch(94% 0.055 95);
-  --tint-cyan: oklch(94% 0.04 235);
-  --tint-coral: oklch(95% 0.028 18);
+  --tint-green: oklch(94% 0.03 150);
+  --tint-lavender: oklch(94.5% 0.025 305);
+  --tint-alert: oklch(95% 0.02 25);
 
-  --color-rule: oklch(84% 0.02 95);
-  --color-focus: oklch(50% 0.19 235);
+  --color-rule: oklch(85% 0.015 150);
+  --color-focus: oklch(48% 0.13 200);
 
-  /* highlighter bands (Hum clipped-background emphasis) */
-  --hl-pear: oklch(86% 0.18 95 / 0.55);
-  --hl-coral: oklch(68% 0.24 18 / 0.3);
+  /* highlighter bands (clipped-background emphasis) */
+  --hl-accent: oklch(75% 0.15 150 / 0.5);
+  --hl-lavender: oklch(74% 0.12 305 / 0.4);
 
   /* shadows */
   --shadow-card: 0 12px 32px -16px oklch(20% 0.012 250 / 0.15);
   --shadow-card-hover: 0 18px 40px -18px oklch(20% 0.012 250 / 0.22);
-  --shadow-btn-cast: oklch(76% 0.2 95 / 0.45);
-  --shadow-btn-cast-coral: oklch(62% 0.2 18 / 0.35);
+  --shadow-btn-cast: oklch(62% 0.14 150 / 0.4);
   --shadow-ink-cast: oklch(20% 0.012 250 / 0.15);
   --shadow-bubble: 0 2px 6px -3px oklch(20% 0.012 250 / 0.18);
 
-  /* type — 2 families, no serif anywhere (Hum) */
+  /* type — 2 families, no serif anywhere */
   --font-display: 'Plus Jakarta Sans', 'Geist', ui-rounded, system-ui, sans-serif;
   --font-body: 'Plus Jakarta Sans', 'Geist', ui-rounded, system-ui, sans-serif;
   --font-label: 'JetBrains Mono', ui-monospace, monospace;

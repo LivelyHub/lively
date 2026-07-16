@@ -1,4 +1,5 @@
-/* Hallmark · genre: playful · macrostructure: Split Studio · theme: Hum · tone: playful-classy
+/* Hallmark · genre: playful · macrostructure: Split Studio · theme: custom (brand-logo palette on the Hum structure) · tone: playful-classy
+ * anchor hue: leaf-green 150 · palette: green/teal/lavender from the Lively logo · studied: yes · DNA-source: image (user brand logo)
  * audience: hackathon judges, then family users · use: understand Lively in 30s → demo/repo
  * nav: N12 banner+retract (fill=tint+ink · dismiss=yes · bar=sticky) · footer: Ft8 marquee (32s · left · middot)
  * H2 hero knobs: ratio=7/5 · right=proof chat card · divider=negative space
@@ -100,7 +101,7 @@ a:active {
 /* Hum emphasis highlighter — clipped background, tracks the text across wraps */
 .hl {
   color: inherit;
-  background-image: linear-gradient(var(--hl, var(--hl-pear)) 0 0);
+  background-image: linear-gradient(var(--hl, var(--hl-accent)) 0 0);
   background-repeat: no-repeat;
   background-size: 100% 0.32em;
   background-position: 0 82%;
@@ -128,12 +129,12 @@ a:active {
   padding-inline: var(--page-gutter);
 }
 
-.band--pear {
-  background: var(--tint-pear);
+.band--green {
+  background: var(--tint-green);
 }
 
-.band--cyan {
-  background: var(--tint-cyan);
+.band--lavender {
+  background: var(--tint-lavender);
 }
 
 .head-hang {
@@ -321,7 +322,7 @@ a:active {
   justify-content: center;
   gap: var(--space-md);
   padding-inline: var(--page-gutter);
-  background: var(--tint-pear);
+  background: var(--tint-green);
   color: var(--color-ink);
   border-bottom: var(--rule-hair) solid var(--color-rule);
 }
@@ -379,8 +380,8 @@ a:active {
 
 .brand {
   display: inline-flex;
-  align-items: baseline;
-  gap: 5px;
+  align-items: center;
+  gap: var(--space-xs);
   font-family: var(--font-display);
   font-size: var(--text-md);
   font-weight: 700;
@@ -389,30 +390,29 @@ a:active {
   text-decoration: none;
 }
 
-/* the character moment — one pear dot that lives beside the wordmark */
-.brand__dot {
-  width: 9px;
-  height: 9px;
+/* the character moment — the logo breathes beside the wordmark */
+.brand__logo {
+  width: 32px;
+  height: 32px;
   border-radius: var(--radius-pill);
-  background: var(--color-accent);
-  box-shadow: inset 0 0 0 1.5px var(--color-accent-deep);
-  animation: dot-breathe 4s var(--ease-in-out) infinite;
+  /* the logo PNG ships a near-white ground; multiply melts it into the paper */
+  mix-blend-mode: multiply;
+  animation: logo-breathe 4s var(--ease-in-out) infinite;
+  transition: transform var(--dur-short) var(--ease-out);
 }
 
-.brand:hover .brand__dot {
+.brand:hover .brand__logo {
   animation: none;
-  transform: scale(1.35);
-  background: var(--color-accent-3);
-  box-shadow: inset 0 0 0 1.5px var(--color-accent-3-deep);
+  transform: scale(1.12);
 }
 
-@keyframes dot-breathe {
+@keyframes logo-breathe {
   0%,
   100% {
     transform: scale(1);
   }
   50% {
-    transform: scale(1.18);
+    transform: scale(1.06);
   }
 }
 
@@ -527,7 +527,7 @@ a:active {
 
 .bubble--out {
   justify-self: end;
-  background: var(--tint-pear);
+  background: var(--tint-green);
   border-bottom-right-radius: 6px;
 }
 
@@ -732,11 +732,11 @@ a:active {
   gap: var(--space-xs);
   padding: var(--space-xs) var(--space-md);
   border-radius: var(--radius-pill);
-  background: var(--tint-coral);
-  color: var(--color-accent-3-deep);
+  background: var(--tint-alert);
+  color: var(--color-alert-deep);
   font-size: var(--text-sm);
   font-weight: 600;
-  box-shadow: inset 0 0 0 1.5px var(--color-accent-3);
+  box-shadow: inset 0 0 0 1.5px var(--color-alert);
 }
 
 .alert::before {
@@ -744,7 +744,7 @@ a:active {
   width: 8px;
   height: 8px;
   border-radius: var(--radius-pill);
-  background: var(--color-accent-3);
+  background: var(--color-alert);
 }
 
 /* ---------- companions — F6 2-up, color-shift cards ---------- */
@@ -756,7 +756,7 @@ a:active {
 }
 
 .companion {
-  --card-tint: var(--tint-pear);
+  --card-tint: var(--tint-lavender);
   background: var(--color-paper);
   border: var(--rule-hair) solid var(--color-rule);
   border-radius: var(--radius-card);
@@ -778,7 +778,7 @@ a:active {
 }
 
 .companion--budi {
-  --card-tint: var(--tint-cyan);
+  --card-tint: var(--tint-green);
 }
 
 .companion h3 {
@@ -789,14 +789,14 @@ a:active {
   max-width: 45ch;
 }
 
-/* CSS-drawn companion marks — three primitives, no faces, no emoji */
+/* CSS-drawn companion marks — the logo's characters: elder = lavender, younger = green */
 .mark {
   width: 64px;
   height: 64px;
   position: relative;
   border-radius: var(--radius-pill);
-  background: var(--color-accent);
-  box-shadow: inset 0 0 0 2px var(--color-accent-deep);
+  background: var(--color-accent-3);
+  box-shadow: inset 0 0 0 2px var(--color-accent-3-deep);
 }
 
 .mark::after {
@@ -806,20 +806,20 @@ a:active {
   width: 26px;
   height: 26px;
   border-radius: var(--radius-pill);
-  background: var(--color-lavender);
-  box-shadow: inset 0 0 0 2px var(--color-lavender-deep);
+  background: var(--color-accent);
+  box-shadow: inset 0 0 0 2px var(--color-accent-deep);
 }
 
 .mark--budi {
   border-radius: 18px;
-  background: var(--color-accent-2);
-  box-shadow: inset 0 0 0 2px var(--color-accent-2-deep);
+  background: var(--color-accent);
+  box-shadow: inset 0 0 0 2px var(--color-accent-deep);
 }
 
 .mark--budi::after {
   border-radius: var(--radius-pill);
-  background: var(--color-accent);
-  box-shadow: inset 0 0 0 2px var(--color-accent-deep);
+  background: var(--color-accent-3);
+  box-shadow: inset 0 0 0 2px var(--color-accent-3-deep);
 }
 
 /* ---------- CTA band ---------- */
@@ -971,7 +971,7 @@ a:active {
     }
   }
 
-  .brand__dot,
+  .brand__logo,
   .foot-marquee__track,
   .streak.is-done .streak__num-wrap {
     animation: none;

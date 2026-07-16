@@ -1,5 +1,13 @@
 [
   {
+    "date": "2026-07-17",
+    "macrostructure": "Split Studio (unchanged — colour retune only)",
+    "theme": "custom",
+    "theme_axes": "light / rounded-sans / multi (leaf-green 150, teal 185, lavender 305)",
+    "enrichment": "brand logo asset (public/logo.png) as nav mark + favicon",
+    "brief": "Lively · retune palette to the brand logo (green speech bubble, lavender elder)"
+  },
+  {
     "date": "2026-07-16",
     "macrostructure": "Split Studio",
     "theme": "Hum",

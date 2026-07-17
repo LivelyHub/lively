@@ -907,6 +907,16 @@ a:active {
   color: var(--color-ink-soft);
 }
 
+.foot-meta a {
+  color: var(--color-ink-soft);
+  text-underline-offset: 3px;
+  white-space: nowrap;
+}
+
+.foot-meta a:hover {
+  color: var(--color-ink);
+}
+
 /* ---------- responsive ---------- */
 
 @media (max-width: 60rem) {
@@ -951,6 +961,64 @@ a:active {
     display: inline-flex;
     align-items: center;
   }
+}
+
+/* ---------- legal page (privacy.html) ---------- */
+
+.legal-bar {
+  max-width: var(--page-max);
+  margin-inline: auto;
+  padding: var(--space-md) var(--page-gutter);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+}
+
+.legal {
+  max-width: 42rem;
+}
+
+.legal h1 {
+  font-size: var(--text-display-s);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin: var(--space-xs) 0 var(--space-md);
+}
+
+.legal__lede {
+  font-size: var(--text-md);
+  color: var(--color-ink-body);
+  margin-bottom: var(--space-lg);
+}
+
+.legal h2 {
+  font-size: var(--text-md);
+  margin: var(--space-xl) 0 var(--space-xs);
+}
+
+.legal p,
+.legal li {
+  color: var(--color-ink-body);
+  line-height: 1.6;
+}
+
+.legal p + p {
+  margin-top: var(--space-sm);
+}
+
+.legal ul {
+  margin: var(--space-sm) 0;
+  padding-left: 1.25rem;
+}
+
+.legal li + li {
+  margin-top: var(--space-2xs);
+}
+
+.legal a {
+  color: var(--color-accent-2-deep);
+  text-underline-offset: 3px;
 }
 
 /* ---------- reduced motion ---------- */

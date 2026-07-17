@@ -368,7 +368,9 @@ function App() {
         </div>
         <p className="foot-meta">
           <span>Lively · Garuda Hacks 7.0 · Health track</span>
-          <span>MIT licensed</span>
+          <span>
+            <a href="/privacy.html">Privacy</a> · MIT licensed
+          </span>
         </p>
       </footer>
     </div>

@@ -1,0 +1,49 @@
+# Secrets — never commit
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+
+# Node / JS
+node_modules/
+dist/
+build/
+*.tsbuildinfo
+
+# Expo / React Native
+.expo/
+.expo-shared/
+*.jks
+*.p8
+*.p12
+*.mobileprovision
+expo-env.d.ts
+web-build/
+.kotlin/
+*.orig.*
+.metro-health-check*
+/ios
+/android
+
+# OS / editor
+.DS_Store
+*.log
+.idea/
+.vscode/
+
+# debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# Local planning artifacts (specs/plans) — kept private during the competition
+docs/superpowers/
+.superpowers/
+
+# Local session handoff (not published)
+HANDOFF.md
+
+# Agent session continuation artifacts (harness-generated)
+.omo/
+.claude/

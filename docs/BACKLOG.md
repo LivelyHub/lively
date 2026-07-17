@@ -277,14 +277,17 @@ SPEC §6 leaves *delivery* to mobile, but something must call Expo Push when an 
 ## Epic B9 — Demo hardening `P1`
 
 ### B9.1 Validation everywhere `P1`
-- [ ] Every route body/params validated (zod or TypeBox); no unvalidated input reaches a query
-- [ ] Validation errors → 400 `{error:{code:'VALIDATION', message, fields:{...}}}`
+- [x] Every route body/params validated (zod); no unvalidated input reaches a query — audited systematically (grepped every `request.params`/`request.body`/`request.query` access across all 10 route files, confirmed each one goes through `parseBody`/`parseQuery` or an ownership helper that validates UUID format before querying — not just assumed from having written it that way)
+- [x] Validation errors → 400 `{error:{code:'VALIDATION', message, fields:{...}}}`
+
+**Bug caught and fixed during the audit:** Fastify's own body-parsing errors (malformed JSON, empty body with a JSON content-type, missing/wrong content-type) bypass the zod layer entirely and were leaking Fastify's internal `FST_ERR_CTP_*` codes at various status codes (400, 415) instead of the standardized `VALIDATION`/400 shape this story requires. Verified with curl against all four cases (malformed JSON, empty body, no content-type, no body at all), then normalized them in the global error handler (`server.ts`) — one place, not a per-route fix — so any `FST_ERR_CTP_*` code becomes a clean `{error:{code:'VALIDATION',message:'Invalid request body'}}` at 400. Re-verified all four cases plus a regression check that normal zod validation errors, 401s, and 404s were untouched by the change.
 
 ### B9.2 CORS + logging `P1`
-- [ ] CORS open to Expo dev origins (`*` acceptable — SPEC §6 waives abuse protection)
-- [ ] Request logging (pino) with route + status + latency
+- [x] CORS open to Expo dev origins (`*` acceptable — SPEC §6 waives abuse protection) — `@fastify/cors` with `origin: true` (reflects the request's Origin rather than a literal `*`, which also works if credentialed requests are ever needed later). Verified: preflight `OPTIONS` returns 204 with `access-control-allow-origin` matching the request's Origin; a normal `GET` carries the same header.
+- [x] Request logging (pino) with route + status + latency — already present since B0 (`Fastify({logger:true})`); verified the actual log lines carry `req.url` (route), `res.statusCode`, and `responseTime`, correlated by `reqId`. No code change needed, just confirmed rather than assumed.
 
 ### B9.3 Deployed and reachable `P1`
+🔴 **Requires your action, not something I can do unattended.** Deploying to Railway/Render/Fly means creating or using a cloud account, which needs your credentials/access — I can walk through the steps with you (or use gstack's `/setup-deploy` skill once a platform is chosen), but I'm not going to sign up for a hosting account or push infrastructure changes to a shared external system on your behalf without you present for it.
 - [ ] Deployed (Railway / Render / Fly) with env vars set
 - [ ] `GET /health` green from a phone on cellular (the demo-day network escape hatch)
 - [ ] `BACKEND_API_URL` shared with mobile + bot teams
@@ -298,14 +301,16 @@ SPEC §6 leaves *delivery* to mobile, but something must call Expo Push when an 
 Post-kickoff addition (mentor/judge feedback: gamification makes checking on Eyang feel like a shared win, not a compliance chore). The progress bar/streak/graphs in B5.3 already deliver most of that value cheaply — this epic is the one genuinely new endpoint, so it's the first thing to drop if Day 3 runs short (PLAN.md cut-order).
 
 ### B10.1 `GET /elders/:id/report?period=week|month` `P1`
-- [ ] Family JWT + ownership; `period` defaults to `week`
-- [ ] Response matches CORE.md §7 shape: `period`, `range`, `headline`, `consistency_pct`, `exercise`, `medication_adherence_pct`, `chair_test_trend`, `highlights[]`, `areas_needing_support[]`
-- [ ] `consistency_pct` = % of days in range with ≥1 engagement row (same definition as B5.3's streak, windowed)
-- [ ] `chair_test_trend` ∈ `improving`/`stable`/`declining`, comparing first vs. last chair-test result in range
-- [ ] Copy tone: `headline` and `highlights` always lead positive; `areas_needing_support` is encouragement-framed, never guilt ("could use a nudge on evening doses", not "missed medication")
-- [ ] Zero-data elder → `consistency_pct: 0`, empty arrays, still 200 with a gentle headline ("Eyang Uti is just getting started")
+- [x] Family JWT + ownership; `period` defaults to `week`
+- [x] Response matches CORE.md §7 shape: `period`, `range`, `headline`, `consistency_pct`, `exercise`, `medication_adherence_pct`, `chair_test_trend`, `highlights[]`, `areas_needing_support[]`
+- [x] `consistency_pct` = % of days in range with ≥1 engagement row (same definition as B5.3's streak, windowed) — `month` is a rolling 30-day window, not a calendar month, matching the same convention already used by B5.3's `exercise_history`/`medication_adherence_trend`, not a second definition of "period"
+- [x] `chair_test_trend` ∈ `improving`/`stable`/`declining`, comparing first vs. last chair-test result in range. Fewer than 2 chair tests in range → `stable` (can't claim a direction from 0-1 points; also the most neutral/positive-safe default)
+- [x] Copy tone: `headline` and `highlights` always lead positive (highlights are opt-in per category — only added when there's genuinely good news, never spun from a bad number); `areas_needing_support` is encouragement-framed, never guilt. Kept intentionally generic ("could use a nudge on medication doses," not day-pinpointed) — `medication_logs` has no slot column to know which specific day/dose, same limitation as B5.3/B6.
+- [x] Zero-data elder → `consistency_pct: 0`, empty arrays, still 200 with a gentle headline (`"{honorific} is just getting started"`) — `medication_adherence_pct` is `null` in this case (and whenever an elder has no active medications), not a fabricated number
 
-**Test:** seeded week → headline + highlights match seed data; fresh elder → zero-state copy, not an error; month vs week windows produce different `range`.
+⚠️ **Worth a second look:** `highlights`/`areas_needing_support`/`headline` copy is in **English**, matching CORE.md §7's literal JSON example verbatim — even though the rest of the product (companion chat copy, `UI-UX-GUIDELINES.md` §4) is Indonesian-first. I followed the documented contract exactly rather than deviate on my own judgment, but this is a real product decision someone should confirm before the demo, not something to discover live.
+
+**Test:** verified against the real seeded Eyang Uti data on Neon, math checked by hand — week: `consistency_pct = round(5/7×100) = 71` (only 1 of 4 seeded chair tests falls in a 7-day window, correctly triggering the `stable` fallback and its highlight), `medication_adherence_pct = round(3/7×100) = 43`; month: all 4 chair tests in range → `improving`, `8→12`, different `consistency_pct` (27) and `range`. Fresh elder → zero-state copy, `medication_adherence_pct: null`, empty arrays, still 200. Invalid `period` → 400. Cross-family → 404.
 **Depends on:** B5.3.
 
 ---

@@ -1,6 +1,7 @@
 import "dotenv/config";
 import Fastify, { type FastifyError } from "fastify";
 import fastifyJwt from "@fastify/jwt";
+import fastifyCors from "@fastify/cors";
 import { sql } from "drizzle-orm";
 import { db } from "./db/index.js";
 import { authRoutes } from "./routes/auth.js";
@@ -13,12 +14,26 @@ import { medicationLogRoutes } from "./routes/medication-logs.js";
 import { alertRoutes } from "./routes/alerts.js";
 import { familyMemberRoutes } from "./routes/family-members.js";
 import { titipanRoutes } from "./routes/titipan.js";
+import { reportRoutes } from "./routes/report.js";
 import type { HttpError } from "./lib/http-errors.js";
 
 const app = Fastify({ logger: true });
 
 app.setErrorHandler((error: FastifyError | HttpError, _request, reply) => {
   app.log.error(error);
+
+  // Fastify's own body-parsing errors (malformed JSON, empty body, wrong
+  // content-type, oversized payload) bypass our zod validation layer
+  // entirely and would otherwise leak internal FST_ERR_CTP_* codes instead
+  // of the standardized VALIDATION shape B9.1 requires. Normalized here,
+  // once, rather than special-cased in every route.
+  if (typeof error.code === "string" && error.code.startsWith("FST_ERR_CTP_")) {
+    reply.status(400).send({
+      error: { code: "VALIDATION", message: "Invalid request body" },
+    });
+    return;
+  }
+
   const statusCode = error.statusCode ?? 500;
   const fields = "fields" in error ? error.fields : undefined;
   reply.status(statusCode).send({
@@ -59,6 +74,11 @@ if (missingEnvVars.length > 0) {
   process.exit(1);
 }
 
+// Open CORS (SPEC §6 explicitly waives abuse protection at hackathon
+// scope — this is a two-client trusted system, not public-internet-facing).
+// origin: true reflects the request's Origin back rather than a literal
+// "*", which is what Expo Go's dev client and the deployed app both need.
+await app.register(fastifyCors, { origin: true });
 await app.register(fastifyJwt, { secret: process.env.JWT_SECRET! });
 await app.register(authRoutes);
 await app.register(elderRoutes);
@@ -70,6 +90,7 @@ await app.register(medicationLogRoutes);
 await app.register(alertRoutes);
 await app.register(familyMemberRoutes);
 await app.register(titipanRoutes);
+await app.register(reportRoutes);
 
 app.listen({ port, host: "0.0.0.0" }).catch((err) => {
   app.log.error(err);

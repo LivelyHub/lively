@@ -1,0 +1,107 @@
+/* Hallmark · tokens · theme: custom (brand-logo palette on the Hum structure)
+ * axes: paper-band=light (L97.5, mint-cream) · display-style=rounded-sans · accent-hue=multi (leaf-green 150 / teal 185 / lavender 305)
+ * anchor: the Lively logo — green speech bubble, lavender elder, warm neutrals
+ */
+
+:root {
+  /* paper + ink */
+  --color-paper: oklch(97.5% 0.008 150);
+  --color-paper-2: oklch(94.5% 0.012 150);
+  --color-paper-3: oklch(91.5% 0.016 150);
+  --color-ink: oklch(20% 0.012 250);
+  --color-ink-body: oklch(20% 0.012 250 / 0.88);
+  --color-ink-soft: oklch(20% 0.012 250 / 0.68);
+  --color-paper-veil: oklch(97.5% 0.008 150 / 0.88);
+
+  /* multi-accent — green = primary action · teal = link / community · lavender = the pop moment */
+  --color-accent: oklch(72% 0.16 150);
+  --color-accent-deep: oklch(54% 0.13 150);
+  --color-accent-2: oklch(64% 0.11 185);
+  --color-accent-2-deep: oklch(43% 0.09 185);
+  --color-accent-3: oklch(74% 0.12 305);
+  --color-accent-3-deep: oklch(50% 0.11 305);
+  --color-mint: oklch(80% 0.13 150);
+  --color-mint-deep: oklch(58% 0.11 150);
+
+  /* safety alert — semantic state colour, deliberately outside the brand palette */
+  --color-alert: oklch(66% 0.19 25);
+  --color-alert-deep: oklch(45% 0.17 25);
+
+  /* section band tints — each accent owns its own surface */
+  --tint-green: oklch(94% 0.03 150);
+  --tint-lavender: oklch(94.5% 0.025 305);
+  --tint-alert: oklch(95% 0.02 25);
+
+  --color-rule: oklch(85% 0.015 150);
+  --color-focus: oklch(48% 0.13 200);
+
+  /* highlighter bands (clipped-background emphasis) */
+  --hl-accent: oklch(75% 0.15 150 / 0.5);
+  --hl-lavender: oklch(74% 0.12 305 / 0.4);
+
+  /* shadows */
+  --shadow-card: 0 12px 32px -16px oklch(20% 0.012 250 / 0.15);
+  --shadow-card-hover: 0 18px 40px -18px oklch(20% 0.012 250 / 0.22);
+  --shadow-btn-cast: oklch(62% 0.14 150 / 0.4);
+  --shadow-ink-cast: oklch(20% 0.012 250 / 0.15);
+  --shadow-bubble: 0 2px 6px -3px oklch(20% 0.012 250 / 0.18);
+
+  /* type — 2 families, no serif anywhere */
+  --font-display: 'Plus Jakarta Sans', 'Geist', ui-rounded, system-ui, sans-serif;
+  --font-body: 'Plus Jakarta Sans', 'Geist', ui-rounded, system-ui, sans-serif;
+  --font-label: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* scale — 1.25 major third */
+  --text-sm: 0.8rem;
+  --text-base: 1rem;
+  --text-md: 1.25rem;
+  --text-lg: 1.5625rem;
+  --text-xl: 1.9531rem;
+  --text-2xl: 2.4414rem;
+  --text-3xl: 3.0518rem;
+  --text-display-s: clamp(2rem, 3vw + 1rem, 3.05rem);
+  --text-display: clamp(2.6rem, 4.5vw + 1rem, 4.5rem);
+  --text-counter: clamp(3rem, 5vw + 1rem, 5rem);
+
+  /* space — 4pt scale */
+  --space-2xs: 0.25rem;
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2.5rem;
+  --space-2xl: 4rem;
+  --space-3xl: 6rem;
+
+  /* radius — the rounded theme */
+  --radius-card: 20px;
+  --radius-input: 12px;
+  --radius-pill: 999px;
+
+  /* motion */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-snap: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-press: cubic-bezier(0.2, 0.7, 0.3, 1);
+  --dur-micro: 120ms;
+  --dur-short: 220ms;
+  --dur-long: 420ms;
+
+  /* z scale */
+  --z-base: 1;
+  --z-raised: 10;
+  --z-sticky: 200;
+
+  /* layout shell — one width model, every section obeys it */
+  --page-max: 72rem;
+  --page-gutter: clamp(1rem, 4vw, 2rem);
+  --section-gap: clamp(4rem, 8vw, 6.5rem);
+
+  /* nav (N12) */
+  --banner-h: 42px;
+  --bar-h: 64px;
+
+  --rule-hair: 1px;
+}

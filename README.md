@@ -121,15 +121,20 @@ npm run dev
 
 ## Architecture
 
-```
-mobile (Expo)  ──REST/JWT──▶  backend (Fastify) ──▶ PostgreSQL (Neon)
-                                    │  ▲
-                        BOT_SERVICE_KEY  WhatsApp Cloud API webhook
-                                    ▼  │
-                                   bot (OpenAI)
+```mermaid
+flowchart LR
+    Mobile["mobile (Expo)"] -- "REST / JWT" --> Backend["backend (Fastify)"]
+    Backend --> DB[("PostgreSQL (Neon)")]
+    Backend -- "BOT_SERVICE_KEY" --> Bot["bot (OpenAI)"]
+    Bot -- "tool calls" --> Backend
+    WhatsApp["WhatsApp Cloud API"] -- "webhook" --> Backend
+    Backend -- "send message" --> WhatsApp
+    Landing["landing (Vite/React)"]
 
-landing (Vite/React) — static, no backend calls
+    style Landing fill:#eee,stroke:#999
 ```
+
+`landing` is fully static and makes no backend calls — shown standalone above.
 
 - **backend** is the shared brain: neither `mobile` nor `bot` talk to the database directly.
 - Two auth modes on the backend: family-member JWT (mobile) and a static `BOT_SERVICE_KEY` header (bot, service-to-service) — both wired and in use.
@@ -139,6 +144,26 @@ landing (Vite/React) — static, no backend calls
 ---
 
 ## Data Flow
+
+```mermaid
+sequenceDiagram
+    participant Elder as Elder (WhatsApp)
+    participant Backend as backend
+    participant Bot as bot
+    participant DB as PostgreSQL
+    participant Family as Family (mobile)
+
+    Elder->>Backend: WhatsApp message (webhook)
+    Backend->>Bot: POST /reply
+    Bot->>Bot: build prompt (soul + memory) -> call LLM
+    Bot-->>Backend: tool calls (log exercise, chair-stand, alert)
+    Backend->>DB: write structured event
+    Bot->>Backend: reply text
+    Backend->>Elder: WhatsApp message (paced, split)
+    Family->>Backend: GET progress / report (JWT)
+    Backend->>DB: read + compute scores
+    Backend-->>Family: chat monitor, progress, alerts
+```
 
 1. Elder sends or receives a WhatsApp message — `backend` owns the WhatsApp Cloud API webhook, pacing, and delivery.
 2. `backend` calls `bot`'s `POST /reply` with the elder's message; `bot` loads the elder's soul + memory, calls the LLM (OpenAI, OpenRouter fallback), and may call tools back into `backend` (exercise logs, chair-stand results, alerts) using `BOT_SERVICE_KEY`.

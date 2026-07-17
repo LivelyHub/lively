@@ -64,10 +64,6 @@ Family-facing `mobile` app:
 - **Family app** (`mobile`) — companion setup wizard, read-only chat monitor, progress charts, medications, alerts, and a weekly/monthly report screen for the family member — never shown to the elder.
 - **Marketing site** (`landing`) — single-scroll pitch page: problem, how-it-works, companion preview, CTA.
 
-### Not yet implemented
-
-- Push notification delivery for alerts (alert records exist; device push is not wired).
-- Automated test coverage on `backend` and `mobile` (see [Testing](#testing)).
 
 ---
 

@@ -4,7 +4,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6)
 ![Backend](https://img.shields.io/badge/backend-Fastify%205-black)
 ![Mobile](https://img.shields.io/badge/mobile-Expo-000020)
-![Bot](https://img.shields.io/badge/bot-Telegram%20%2B%20WhatsApp-25D366)
+![Bot](https://img.shields.io/badge/bot-WhatsApp-25D366)
 ![Hackathon](https://img.shields.io/badge/Garuda%20Hacks%207.0-Health%20track-orange)
 
 **A WhatsApp/Telegram companion that keeps elderly parents active and their family in the loop.**
@@ -29,7 +29,6 @@ Built for **Garuda Hacks 7.0** (Health track).
 - [Gamification](#gamification)
 - [Testing](#testing)
 - [Performance Targets](#performance-targets)
-- [License](#license)
 
 ---
 
@@ -47,20 +46,20 @@ Built for **Garuda Hacks 7.0** (Health track).
 
 ### Core
 
-- **AI companion chat** (`bot`) — persona-driven daily check-ins over Telegram (implemented) and WhatsApp (optional, via Baileys), with human-like pacing: replies split into ≤3 message bubbles, typing delay computed from message length (40 chars/sec, capped 2–8s).
+- **AI companion chat** (`bot`) — persona-driven replies over WhatsApp: `backend` owns the WhatsApp Cloud API webhook and delivery pacing, `bot` is a stateless reply engine (`POST /reply`, `POST /soul`, `POST /medications`) that builds a per-elder system prompt and calls OpenAI (OpenRouter fallback).
 - **Elder & family accounts** (`backend`) — JWT-authenticated family members own one or more elder profiles.
 - **Chair-stand assessment** — 30-second chair-stand test results logged and scored as a fall-risk/fitness proxy.
 - **Medication tracking** — medication list + per-dose logging, rolled up into an adherence score.
 - **Exercise streaks** — daily exercise check-ins tracked as a consecutive-day streak.
-- **Family progress dashboard** (`mobile`) — read-only chat monitor, progress charts, and a weekly/monthly report screen for the family member — never shown to the elder.
-- **Marketing site** (`landing`) — single-scroll pitch page: problem, how-it-works, companion preview, judges/CTA.
+- **Alerts** — safety escalation (missed day, medication missed, pain/dizziness mention, no-response, emergency) surfaced through `backend`'s alerts module.
+- **Titipan** — family-to-elder message relay through the companion.
+- **Family app** (`mobile`) — companion setup wizard, read-only chat monitor, progress charts, medications, alerts, and a weekly/monthly report screen for the family member — never shown to the elder.
+- **Marketing site** (`landing`) — single-scroll pitch page: problem, how-it-works, companion preview, CTA.
 
-### Bonus / planned (not yet implemented)
+### Not yet implemented
 
-- Alerts (missed day, medication missed, pain/dizziness mention, no-response, emergency) with push notifications.
-- "Titipan" — family-to-elder message relay through the companion.
-- Bot ↔ backend integration (bot currently runs standalone; wiring to `BOT_SERVICE_KEY` + backend API is speculative in the bot repo).
-- Official WhatsApp Cloud API channel (current bot uses the unofficial Baileys library; Meta Cloud API was the original spec).
+- Push notification delivery for alerts (alert records exist; device push is not wired).
+- Automated test coverage on `backend` and `mobile` (see [Testing](#testing)).
 
 ---
 
@@ -68,10 +67,10 @@ Built for **Garuda Hacks 7.0** (Health track).
 
 | Component | Status | Stack |
 |---|---|---|
-| `backend` | routes implemented, no tests wired | TypeScript (ESM) · Fastify 5 · Drizzle ORM · PostgreSQL 16 (Neon) · Zod · bcryptjs · `@fastify/jwt` |
-| `bot` | Telegram channel working, WhatsApp optional | TypeScript · grammy (Telegram) · Baileys (WhatsApp, unofficial) · OpenAI SDK (OpenAI + OpenRouter fallback) · pino |
-| `mobile` | docs/spec only, no code yet | Planned: Expo + TypeScript · expo-router · TanStack Query · NativeWind + react-native-reusables |
-| `landing` | scaffolded, static | Vite · React 19 · TypeScript · React Compiler (Tailwind/shadcn intended, not yet wired) |
+| `backend` | implemented — WhatsApp webhook, bot integration, all modules wired; no automated tests | TypeScript (ESM) · Fastify 5 · Drizzle ORM · PostgreSQL (Neon) · Zod · bcryptjs · `@fastify/jwt` |
+| `bot` | implemented — stateless HTTP reply service, no platform code of its own | TypeScript · `node:http` · OpenAI SDK (OpenAI + OpenRouter fallback) · better-sqlite3 · pino |
+| `mobile` | implemented — auth, setup wizard, chat monitor, progress, medications, alerts, titipan, reports | Expo SDK 54 · React Native 0.81 · TypeScript · expo-router · TanStack Query |
+| `landing` | implemented — static pitch page | Vite · React 19 · TypeScript · React Compiler |
 
 All four repos are MIT-licensed and share a common contract doc (`CORE.md`) copied across them.
 
@@ -89,8 +88,8 @@ Everything is in one clone. Set up each component individually — see its own R
 ```bash
 cd backend
 npm install
-cp .env.example .env   # DATABASE_URL, BOT_SERVICE_KEY, JWT_SECRET, PORT
-docker compose up db   # local Postgres on :5433
+cp .env.example .env   # DATABASE_URL, BOT_SERVICE_KEY, JWT_SECRET, PORT, WHATSAPP_* , META_APP_SECRET
+docker compose up -d   # local Postgres on :5433
 npm run db:generate && npm run db:migrate
 npm run dev
 ```
@@ -99,11 +98,17 @@ npm run dev
 ```bash
 cd bot
 npm install
-cp .env.example .env   # TELEGRAM_BOT_TOKEN, OPENAI_API_KEY / OPENROUTER_API_KEY, WHATSAPP_ENABLED
+cp .env.example .env   # OPENAI_API_KEY / OPENROUTER_API_KEY, BACKEND_API_URL, BOT_SERVICE_KEY
 npm run dev
 ```
 
-**mobile** — not yet runnable; see `mobile/PLAN.md`. Planned: `npx create-expo-app`, `BACKEND_API_URL` env var.
+**mobile**
+```bash
+cd mobile
+npm install
+cp .env.example .env   # BACKEND_API_URL
+npm start
+```
 
 **landing**
 ```bash
@@ -117,28 +122,30 @@ npm run dev
 ## Architecture
 
 ```
-mobile (Expo, planned)  ──REST/JWT──▶  backend (Fastify) ──▶ PostgreSQL (Neon)
-                                             ▲
-bot (Telegram + WhatsApp) ──service key──────┘   (planned; not wired yet)
+mobile (Expo)  ──REST/JWT──▶  backend (Fastify) ──▶ PostgreSQL (Neon)
+                                    │  ▲
+                        BOT_SERVICE_KEY  WhatsApp Cloud API webhook
+                                    ▼  │
+                                   bot (OpenAI)
 
 landing (Vite/React) — static, no backend calls
 ```
 
 - **backend** is the shared brain: neither `mobile` nor `bot` talk to the database directly.
-- Two auth modes on the backend: family-member JWT (mobile) and a static `BOT_SERVICE_KEY` header (bot, service-to-service) — the bot-side call is still a stub.
-- **bot** currently owns its own in-memory conversation history and calls the LLM directly; persisting conversations to `backend` is planned, not implemented.
+- Two auth modes on the backend: family-member JWT (mobile) and a static `BOT_SERVICE_KEY` header (bot, service-to-service) — both wired and in use.
+- **bot** is stateless per call: it holds no platform connection, loads elder soul/memory from its own SQLite store, and calls back into `backend` for anything that needs to be logged or escalated.
 - **landing** is fully static — no auth, no backend calls, no CMS.
 
 ---
 
 ## Data Flow
 
-1. Elder receives a scheduled or reactive message from the companion (Telegram now, WhatsApp optional) — `bot`.
-2. Bot builds a reply using the LLM (OpenAI, OpenRouter fallback), paced to feel human, and (planned) logs the exchange to `backend` via `BOT_SERVICE_KEY`.
+1. Elder sends or receives a WhatsApp message — `backend` owns the WhatsApp Cloud API webhook, pacing, and delivery.
+2. `backend` calls `bot`'s `POST /reply` with the elder's message; `bot` loads the elder's soul + memory, calls the LLM (OpenAI, OpenRouter fallback), and may call tools back into `backend` (exercise logs, chair-stand results, alerts) using `BOT_SERVICE_KEY`.
 3. Elder reports a chair-stand test, exercise, or medication dose — logged as a structured event.
 4. `backend` computes derived signals at read time (no extra tables): chair-test score, exercise-streak score, medication-adherence score → averaged into `overall_progress_pct`.
 5. Family member opens the `mobile` app (JWT-authenticated) to read the chat monitor, progress charts, and weekly/monthly report — pulled from `backend`.
-6. (Planned) `backend` pushes alerts to `mobile` for missed days, missed medication, concerning messages, or no-response.
+6. `backend`'s alerts module records missed days, missed medication, concerning messages, or no-response — surfaced to `mobile`; device push delivery is not yet wired.
 
 ---
 
@@ -160,9 +167,9 @@ Progress mechanics exist **only for the family member's view** — the elder nev
 
 | Component | Current state |
 |---|---|
-| `backend` | No tests wired yet (`npm test` is a placeholder). `docs/TESTING.md` specifies a planned Vitest + Fastify `app.inject()` suite per route, against a local Docker Postgres. |
-| `bot` | No tests, no CI. |
-| `mobile` | No code yet; `docs/TESTING.md` specifies a manual per-screen QA checklist (skeleton/empty/error/offline/live states) run on physical devices via Expo Go, plus a scripted demo-day rehearsal. |
+| `backend` | No automated tests wired yet (`npm test` is a placeholder). `docs/TESTING.md` specifies a planned Vitest + Fastify `app.inject()` suite per route, against a local Docker Postgres. |
+| `bot` | `node:test` suite covering the HTTP server (`npm test`). |
+| `mobile` | No automated tests; `docs/TESTING.md` specifies a manual per-screen QA checklist (skeleton/empty/error/offline/live states) run on physical devices via Expo Go, plus a scripted demo-day rehearsal. |
 | `landing` | No tests, no CI. |
 
 None of the four repos have CI configured (`.github/workflows` absent everywhere) as of this writing.
@@ -180,12 +187,6 @@ None of the four repos have CI configured (`.github/workflows` absent everywhere
 - Bot typing delay: computed at 40 chars/sec, capped between 2–8s, to feel human rather than instant.
 
 Scoped out for this hackathon build (see `backend/SPEC.md`): rate limiting, abuse protection, multi-region replication — single Neon instance, trusted two-client system.
-
----
-
-## License
-
-Each component (`backend`, `bot`, `mobile`, `landing`) and this umbrella repo are licensed under [MIT](LICENSE), © 2026 Lively.
 
 ---
 

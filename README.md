@@ -38,7 +38,15 @@ Built for **Garuda Hacks 7.0** (Health track).
 
 ## Screenshots
 
-*(tbd — add screenshots from mobile app + landing page here)*
+Family-facing `mobile` app:
+
+| Setup — elder profile | Setup — companion persona | Setup — health notes | Setup — personalize |
+|---|---|---|---|
+| ![Add elder](screenshots/01-setup-elder.png) | ![Choose companion](screenshots/02-setup-persona.png) | ![Health notes](screenshots/03-setup-health.png) | ![Personalize](screenshots/04-setup-personalize.png) |
+
+| Home | Chat monitor | Progress | Alerts |
+|---|---|---|---|
+| ![Home](screenshots/05-home.png) | ![Chat monitor](screenshots/06-chat.png) | ![Progress](screenshots/07-progress.png) | ![Alerts](screenshots/08-alerts.png) |
 
 ---
 

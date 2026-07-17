@@ -48,6 +48,12 @@ Family-facing `mobile` app:
 |---|---|---|---|
 | ![Home](screenshots/05-home.png) | ![Chat monitor](screenshots/06-chat.png) | ![Progress](screenshots/07-progress.png) | ![Alerts](screenshots/08-alerts.png) |
 
+Elder-facing companion, over WhatsApp:
+
+| Check-in & exercise coaching | Medication reminders | Following up |
+|---|---|---|
+| ![WhatsApp chat 1](screenshots/09-whatsapp-chat-1.png) | ![WhatsApp chat 2](screenshots/10-whatsapp-chat-2.png) | ![WhatsApp chat 3](screenshots/11-whatsapp-chat-3.png) |
+
 ---
 
 ## Features

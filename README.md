@@ -13,8 +13,7 @@ Lively pairs an elderly person ("Eyang") with a friendly AI companion (Mbak Asih
 
 Built for **Garuda Hacks 7.0** (Health track).
 
-> This repo is an umbrella linking to four independently-maintained repos:
-> [backend](https://github.com/LivelyHub/lively-backend) · [bot](https://github.com/LivelyHub/lively-bot) · [mobile](https://github.com/LivelyHub/lively-mobile) · [landing](https://github.com/LivelyHub/lively-landing)
+> This is a monorepo — one clone gets all four services (`backend`, `bot`, `mobile`, `landing`), merged in via `git subtree` from their original repos ([backend](https://github.com/LivelyHub/lively-backend) · [bot](https://github.com/LivelyHub/lively-bot) · [mobile](https://github.com/LivelyHub/lively-mobile) · [landing](https://github.com/LivelyHub/lively-landing)).
 
 ---
 
@@ -80,20 +79,15 @@ All four repos are MIT-licensed and share a common contract doc (`CORE.md`) copi
 
 ## Getting Started
 
-Each component lives in its own repo — clone whichever you need:
-
 ```bash
-git clone https://github.com/LivelyHub/lively-backend.git
-git clone https://github.com/LivelyHub/lively-bot.git
-git clone https://github.com/LivelyHub/lively-mobile.git
-git clone https://github.com/LivelyHub/lively-landing.git
+git clone https://github.com/LivelyHub/lively.git
 ```
 
-Then set up each component individually — see its own README for details:
+Everything is in one clone. Set up each component individually — see its own README for details:
 
 **backend**
 ```bash
-cd lively-backend
+cd backend
 npm install
 cp .env.example .env   # DATABASE_URL, BOT_SERVICE_KEY, JWT_SECRET, PORT
 docker compose up db   # local Postgres on :5433
@@ -103,7 +97,7 @@ npm run dev
 
 **bot**
 ```bash
-cd lively-bot
+cd bot
 npm install
 cp .env.example .env   # TELEGRAM_BOT_TOKEN, OPENAI_API_KEY / OPENROUTER_API_KEY, WHATSAPP_ENABLED
 npm run dev
@@ -113,7 +107,7 @@ npm run dev
 
 **landing**
 ```bash
-cd lively-landing
+cd landing/lively-landing
 npm install
 npm run dev
 ```

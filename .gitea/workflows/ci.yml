@@ -57,6 +57,9 @@ jobs:
           cat > .env <<'APP_ENV_EOF'
           ${{ secrets.APP_ENV }}
           APP_ENV_EOF
+          # strip CR so a secret pasted with Windows line endings doesn't
+          # leave \r inside values (docker --env-file keeps it verbatim)
+          sed -i 's/\r$//' .env
 
       - name: Run migrations
         run: |

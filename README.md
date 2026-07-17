@@ -34,7 +34,7 @@ Built for **Garuda Hacks 7.0** (Health track).
 
 ## Demo
 
-[Watch the demo](https://youtu.be/Jz3qqoG6A6I)
+[![Watch the demo](https://img.youtube.com/vi/Jz3qqoG6A6I/maxresdefault.jpg)](https://youtu.be/Jz3qqoG6A6I)
 
 ## Screenshots
 
